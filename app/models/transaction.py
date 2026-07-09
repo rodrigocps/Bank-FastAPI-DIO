@@ -15,7 +15,7 @@ class Transaction(Base):
     id = Column(Integer, primary_key=True, index=True)
     account_id = Column(Integer, ForeignKey("accounts.id"), nullable=False)
     type = Column(Enum(TransactionType), nullable=False)
-    amount = Column(Numeric(precision=12, slace=2), nullable=False)
+    amount = Column(Numeric(precision=12, scale=2), nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     
     # Relacionamento de volta para a conta

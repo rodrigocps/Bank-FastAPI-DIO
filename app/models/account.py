@@ -22,7 +22,7 @@ class Account(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     account_number = Column(String, unique=True, index=True, nullable=False)
-    balance = Column(Numeric(precision=12, scale=2) default=0.00) # Mantem precisão financeira
+    balance = Column(Numeric(precision=12, scale=2), default=0.00) # Mantem precisão financeira
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     # Relacionamentos

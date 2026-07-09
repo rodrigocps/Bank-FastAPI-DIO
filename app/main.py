@@ -1,6 +1,9 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.core.database import Base, engine
+from app.models.account import User, Account
+from app.models.transaction import Transaction
+
 
 # Ferenciado de ciclo de vida
 async def lifespan(app: FastAPI):
