@@ -1,14 +1,15 @@
 import random
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from app.core.database import get_db
 from app.core.security import get_password_hash, verify_password, create_access_token
 from app.models.account import User, Account
-from app.schemas.auth import UserCreate, UserResponse, LoginRequest, TokenResponse
+from app.schemas.auth import UserCreate, UserResponse, TokenResponse
 
-router = APIRouter(prefix="/auth", tags=["Auntenticacao"])
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register_user(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
@@ -41,15 +42,19 @@ async def register_user(user_data: UserCreate, db: AsyncSession = Depends(get_db
     return new_user
 
 @router.post("/login", response_model=TokenResponse)
-async def login(login_data: LoginRequest, db: AsyncSession = Depends(get_db)):
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     # 1. busca o usuario
-    result = await db.execute(select(User).where(User.username == login_data.username))
+    result = await db.execute(select(User).where(User.username == form_data.username))
     user = result.scalars().first()
     
     # 2. valida existencia e senha
-    if not user or not verify_password(login_data.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Incorrect username or password")
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=401, 
+            detail="Incorrect username or password", 
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     
     # 3. Gera o token JWT com o "sub" sendo o username
-    access_token = create_access_token(data={"sub": user.name})
+    access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}

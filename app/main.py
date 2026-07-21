@@ -3,6 +3,9 @@ from fastapi import FastAPI
 from app.core.database import Base, engine
 from app.models.account import User, Account
 from app.models.transaction import Transaction
+from app.routers import auth, banking
+
+
 
 
 # Ferenciado de ciclo de vida
@@ -21,6 +24,8 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+app.include_router(auth.router)
+app.include_router(banking.router)
 
 @app.get("/", tags=["Root"])
 async def root():

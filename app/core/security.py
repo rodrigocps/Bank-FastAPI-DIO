@@ -12,7 +12,7 @@ from app.core.config import settings
 from app.models.account import User
 
 # Configura o contexto do hash de senha com bcrypt
-pwd_context = CryptContext(schemas=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Função para transformar senha plana em Hash
 def get_password_hash(password: str) -> str:

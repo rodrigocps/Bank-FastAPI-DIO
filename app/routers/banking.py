@@ -51,3 +51,23 @@ async def create_transaction(
     
     return new_transaction
 
+@router.get("/statement", response_model=StatementResponse)
+async def get_statement(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    # busca a conta ja trazendo as transações relacionadas usando 'selectinload'
+    # Essa abordagem evita o problema de "lazy loading" em contextos assincronos
+    query = select(Account).options(selectinload(Account.transactions)).where(Account.user_id == current_user.id)
+    result = await db.execute(query)
+    account = result.scalars().first()
+    
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found.")
+
+    # Retorna o extrato consolidando os dados da conta e todas as transações (filtradas pelo account_id internamente) 
+    return {
+        "account_number": account.account_number,
+        "current_balance": account.balance,
+        "transactions": account.transactions
+    }
