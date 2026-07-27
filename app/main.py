@@ -6,18 +6,12 @@ from app.models.transaction import Transaction
 from app.routers import auth, banking
 
 
-
-
-# Ferenciado de ciclo de vida
 async def lifespan(app: FastAPI):
-    # Tudo ANTES do 'yield' roda no "startup" (quando a api inicia)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     
     yield # A API fica rodando aqui enquanto atende as requisições
     
-    # Tudo DEPOIS do 'yiled' rodaria no "shutdown" (quando a api desliga) 
-
 app = FastAPI(
     title="Async Bank API",
     decription="Asynchronous Banking API developed with FastAPI and SQLAlchemy",
